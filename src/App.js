@@ -1,5 +1,11 @@
 import React, { useState } from "react";
-import axios from "axios";
+import { createClient } from "@supabase/supabase-js";
+
+// Supabase setup
+const supabaseUrl = "https://YOUR_PROJECT_REF.supabase.co"; // अपने Supabase project URL डालो
+const supabaseKey = "YOUR_ANON_KEY"; // अपने Supabase anon key डालो
+const supabase = createClient(supabaseUrl, supabaseKey);
+
 function App() {
   const [formData, setFormData] = useState({
     firstName: "",
@@ -14,42 +20,47 @@ function App() {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  try {
-    const res = await axios.post(
-      "https://ccf9e25d-023c-4f20-b6a5-32443347aa6a-00-j911e4d07n8m.pike.replit.dev/submit",
-      {
-        first_name: formData.firstName,
-        last_name: formData.lastName,
-        email: formData.email,
-        phone: formData.phone,
-        student_id: formData.studentId,
-        description: formData.complaint,
-      }
-    );
+    const { data, error } = await supabase
+      .from("feedback") // अपनी table का नाम
+      .insert([
+        {
+          first_name: formData.firstName,
+          last_name: formData.lastName,
+          email: formData.email,
+          phone: formData.phone,
+          student_id: formData.studentId,
+          description: formData.complaint,
+        },
+      ]);
 
-    alert(res.data.message);
-  } catch (err) {
-    alert("Error occurred!");
-  }
-};
-
-
-  
+    if (error) {
+      alert("Error occurred! " + error.message);
+    } else {
+      alert("Feedback submitted successfully!");
+      // form reset
+      setFormData({
+        firstName: "",
+        lastName: "",
+        email: "",
+        phone: "",
+        studentId: "",
+        complaint: "",
+      });
+    }
+  };
 
   return (
     <div style={styles.page}>
       <div style={styles.formCard}>
         <h2 style={styles.heading}>Student Feedback Form</h2>
         <p style={styles.subText}>
-          Please use this form to submit a complaint regarding any issue related to your experience as a student.
+          कृपया इस फॉर्म का उपयोग करके अपने अनुभव के बारे में फीडबैक दें।
         </p>
 
         <form onSubmit={handleSubmit}>
-
-          {/* Name Row */}
           <div style={styles.row}>
             <div style={styles.fieldBox}>
               <label style={styles.label}>First Name</label>
@@ -57,6 +68,7 @@ const handleSubmit = async (e) => {
                 type="text"
                 name="firstName"
                 style={styles.input}
+                value={formData.firstName}
                 onChange={handleChange}
               />
             </div>
@@ -67,55 +79,60 @@ const handleSubmit = async (e) => {
                 type="text"
                 name="lastName"
                 style={styles.input}
+                value={formData.lastName}
                 onChange={handleChange}
               />
             </div>
           </div>
 
-          {/* Email */}
           <label style={styles.label}>Email Address</label>
           <input
             type="email"
             name="email"
             style={styles.inputFull}
+            value={formData.email}
             onChange={handleChange}
           />
 
-          {/* Phone */}
           <label style={styles.label}>Phone Number</label>
           <input
             type="text"
             name="phone"
             style={styles.inputFull}
+            value={formData.phone}
             onChange={handleChange}
           />
 
-          {/* Student ID */}
-          <label style={styles.label}>Student  Course</label>
+          <label style={styles.label}>Student Course / ID</label>
           <input
             type="text"
             name="studentId"
             style={styles.inputFull}
+            value={formData.studentId}
             onChange={handleChange}
           />
 
-          {/* Complaint */}
-          <label style={styles.label}>Feedback About teaching and Teacher Description</label>
+          <label style={styles.label}>
+            Feedback About Teaching and Teacher Description
+          </label>
           <textarea
             name="complaint"
             rows={5}
             style={styles.textarea}
+            value={formData.complaint}
             onChange={handleChange}
           ></textarea>
 
-          {/* Submit */}
-          <button type="submit" style={styles.submitBtn}>Submit   Your Feedback</button>
+          <button type="submit" style={styles.submitBtn}>
+            Submit Your Feedback
+          </button>
         </form>
       </div>
     </div>
   );
 }
 
+// CSS styles
 const styles = {
   page: {
     background: "#f2f2f4",
