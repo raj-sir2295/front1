@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
 // Supabase setup
-const supabaseUrl = "https://YOUR_PROJECT_REF.supabase.co"; // अपने Supabase project URL डालो
+const supabaseUrl = "https://vvyihexbcekdwdatknum.supabase.co"; // अपने Supabase project URL डालो
 const supabaseKey = "sb_publishable_cJPjYHIBq8Uup1rlQ6S0fQ_lEhHXnJ4";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
