@@ -68,12 +68,12 @@ export default function MonthlyFeedbackForm() {
     <div style={styles.page}>
       <div style={styles.formCard}>
         <h1 style={styles.heading}>PROPER COMPUTER INSTITUTE OF TECHNOLOGIES</h1>
-        <h2 style={styles.subHeading}>मासिक फीडबैक फॉर्म</h2>
+        <h2 style={styles.subHeading}>MONTHLY FEEDBACK FORM</h2>
 
         <form onSubmit={handleSubmit}>
-          <h3 style={styles.sectionTitle}>छात्र विवरण</h3>
+          <h3 style={styles.sectionTitle}>STUDENT DETAILS</h3>
 
-          <label style={styles.label}>छात्र का नाम</label>
+          <label style={styles.label}>STUDENT NAME</label>
           <input
             name="studentName"
             value={form.studentName}
@@ -81,7 +81,7 @@ export default function MonthlyFeedbackForm() {
             style={styles.input}
           />
 
-          <label style={styles.label}>जॉइन किया गया कोर्स</label>
+          <label style={styles.label}>JOINING COURSE</label>
           <input
             name="joiningCourse"
             value={form.joiningCourse}
@@ -89,7 +89,7 @@ export default function MonthlyFeedbackForm() {
             style={styles.input}
           />
 
-          <label style={styles.label}>बैच टाइम</label>
+          <label style={styles.label}>BATCH TIME</label>
           <input
             name="batchTime"
             value={form.batchTime}
@@ -97,7 +97,7 @@ export default function MonthlyFeedbackForm() {
             style={styles.input}
           />
 
-          <label style={styles.label}>शिक्षक का नाम</label>
+          <label style={styles.label}>TEACHER NAME</label>
           <input
             name="teacherName"
             value={form.teacherName}
