@@ -3,7 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 // Supabase setup
 const supabaseUrl = "https://YOUR_PROJECT_REF.supabase.co"; // अपने Supabase project URL डालो
-const supabaseKey = "YOUR_ANON_KEY"; // अपने Supabase anon key डालो
+const supabaseKey = "sb_publishable_cJPjYHIBq8Uup1rlQ6S0fQ_lEhHXnJ4";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 function App() {
@@ -36,7 +36,6 @@ function App() {
         },
       ]);
 
-    // destructuring नहीं किया → ESLint error gone
     if (result.error) {
       alert("Error occurred! " + result.error.message);
     } else {
@@ -133,7 +132,78 @@ function App() {
   );
 }
 
-// CSS styles (same as before)
-const styles = { ... /* unchanged */ };
+// CSS styles
+const styles = {
+  page: {
+    background: "#f2f2f4",
+    minHeight: "100vh",
+    paddingTop: "40px",
+    display: "flex",
+    justifyContent: "center",
+  },
+  formCard: {
+    width: "55%",
+    background: "#fff",
+    padding: "35px",
+    borderRadius: "10px",
+    boxShadow: "0 0 15px rgba(0,0,0,0.15)",
+  },
+  heading: {
+    fontSize: "28px",
+    marginBottom: "10px",
+    textAlign: "left",
+  },
+  subText: {
+    fontSize: "15px",
+    color: "#555",
+    marginBottom: "25px",
+  },
+  row: {
+    display: "flex",
+    gap: "20px",
+    marginBottom: "20px",
+  },
+  fieldBox: {
+    width: "50%",
+    display: "flex",
+    flexDirection: "column",
+  },
+  label: {
+    fontWeight: "bold",
+    marginBottom: "5px",
+  },
+  input: {
+    padding: "12px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+    fontSize: "16px",
+  },
+  inputFull: {
+    padding: "12px",
+    width: "100%",
+    marginBottom: "20px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+    fontSize: "16px",
+  },
+  textarea: {
+    width: "100%",
+    padding: "12px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+    fontSize: "16px",
+    marginBottom: "20px",
+  },
+  submitBtn: {
+    width: "100%",
+    padding: "15px",
+    background: "#007BFF",
+    color: "white",
+    border: "none",
+    borderRadius: "5px",
+    fontSize: "18px",
+    cursor: "pointer",
+  },
+};
 
 export default App;
