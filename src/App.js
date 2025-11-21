@@ -85,7 +85,7 @@ export default function MonthlyFeedbackForm() {
       "q4",
       "q5",
       "q6",
-    ];
+    ]; 
 
     for (let field of requiredFields) {
       if (!form[field]) {
