@@ -39,7 +39,7 @@ export default function MonthlyFeedbackForm() {
       return;
     }
 
-    // Form validation: sab fields compulsory
+    // Form validation: all fields compulsory
     const requiredFields = [
       "fullName",
       "mobileNumber",
@@ -62,10 +62,32 @@ export default function MonthlyFeedbackForm() {
       }
     }
 
-    // Supabase insert
+    // Prepare current month & year
+    const feedbackMonth = today.getMonth() + 1; // 1-12
+    const feedbackYear = today.getFullYear();
+
+    // Check for duplicate entry
+    const { data: existing, error: selectError } = await supabase
+      .from("feedback")
+      .select("*")
+      .eq("student_name", form.fullName)
+      .eq("feedback_month", feedbackMonth)
+      .eq("feedback_year", feedbackYear);
+
+    if (selectError) {
+      alert("Error checking duplicates: " + selectError.message);
+      return;
+    }
+
+    if (existing.length > 0) {
+      alert(`Duplicate entry! "${form.fullName}" के लिए फीडबैक इस महीने पहले ही सबमिट हो चुका है।`);
+      return;
+    }
+
+    // Insert feedback
     const { error } = await supabase.from("feedback").insert([
       {
-        full_name: form.fullName,
+        student_name: form.fullName,
         mobile_number: form.mobileNumber,
         branch: form.branch,
         joining_course: form.joiningCourse,
@@ -78,17 +100,13 @@ export default function MonthlyFeedbackForm() {
         q5: form.q5,
         q6: form.q6,
         suggestion: form.suggestion,
+        feedback_month: feedbackMonth,
+        feedback_year: feedbackYear,
       },
     ]);
 
     if (error) {
-      if (error.code === "23505" || error.details?.includes("full_name")) {
-        alert(
-          `Duplicate entry! "${form.fullName}" के लिए फीडबैक पहले ही सबमिट हो चुका है।`
-        );
-      } else {
-        alert("Error: " + error.message);
-      }
+      alert("Error: " + error.message);
     } else {
       alert(`फीडबैक सफलतापूर्वक "${form.fullName}" के लिए सबमिट हुआ!`);
       setForm({
@@ -175,177 +193,22 @@ export default function MonthlyFeedbackForm() {
 
           <h3 style={styles.sectionTitle}>प्रश्न</h3>
 
-          {/* Q1 */}
-          <p style={styles.question}>1. शिक्षक का व्यवहार आपके साथ कैसा है?</p>
-          <div style={styles.radioRow}>
-            <label>
-              <input
-                type="radio"
-                name="q1"
-                value="BAD"
-                checked={form.q1 === "BAD"}
-                onChange={handleChange}
-              />{" "}
-              खराब
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="q1"
-                value="GOOD"
-                checked={form.q1 === "GOOD"}
-                onChange={handleChange}
-              />{" "}
-              अच्छा
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="q1"
-                value="GREAT"
-                checked={form.q1 === "GREAT"}
-                onChange={handleChange}
-              />{" "}
-              बहुत अच्छा
-            </label>
-          </div>
-
-          {/* Q2 */}
-          <p style={styles.question}>
-            2. अनुपस्थित होने पर क्या शिक्षक छूटा हुआ कोर्स दोबारा समझाते हैं?
-          </p>
-          <div style={styles.radioRow}>
-            <label>
-              <input
-                type="radio"
-                name="q2"
-                value="YES"
-                checked={form.q2 === "YES"}
-                onChange={handleChange}
-              />{" "}
-              हाँ
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="q2"
-                value="NO"
-                checked={form.q2 === "NO"}
-                onChange={handleChange}
-              />{" "}
-              नहीं
-            </label>
-          </div>
-
-          {/* Q3 */}
-          <p style={styles.question}>3. शिक्षक की समझाने की गुणवत्ता कैसी है?</p>
-          <div style={styles.radioRow}>
-            <label>
-              <input
-                type="radio"
-                name="q3"
-                value="BAD"
-                checked={form.q3 === "BAD"}
-                onChange={handleChange}
-              />{" "}
-              खराब
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="q3"
-                value="GOOD"
-                checked={form.q3 === "GOOD"}
-                onChange={handleChange}
-              />{" "}
-              अच्छा
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="q3"
-                value="GREAT"
-                checked={form.q3 === "GREAT"}
-                onChange={handleChange}
-              />{" "}
-              बहुत अच्छा
-            </label>
-          </div>
-
-          {/* Q4 */}
-          <p style={styles.question}>4. क्या आप शिक्षण से संतुष्ट हैं?</p>
-          <div style={styles.radioRow}>
-            <label>
-              <input
-                type="radio"
-                name="q4"
-                value="YES"
-                checked={form.q4 === "YES"}
-                onChange={handleChange}
-              />{" "}
-              हाँ
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="q4"
-                value="NO"
-                checked={form.q4 === "NO"}
-                onChange={handleChange}
-              />{" "}
-              नहीं
-            </label>
-          </div>
-
-          {/* Q5 */}
-          <p style={styles.question}>5. क्या आपका कंप्यूटर सही से काम कर रहा है?</p>
-          <div style={styles.radioRow}>
-            <label>
-              <input
-                type="radio"
-                name="q5"
-                value="YES"
-                checked={form.q5 === "YES"}
-                onChange={handleChange}
-              />{" "}
-              हाँ
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="q5"
-                value="NO"
-                checked={form.q5 === "NO"}
-                onChange={handleChange}
-              />{" "}
-              नहीं
-            </label>
-          </div>
-
-          {/* Q6 */}
-          <p style={styles.question}>6. क्या आप कक्षा की सफ़ाई से संतुष्ट हैं?</p>
-          <div style={styles.radioRow}>
-            <label>
-              <input
-                type="radio"
-                name="q6"
-                value="YES"
-                checked={form.q6 === "YES"}
-                onChange={handleChange}
-              />{" "}
-              हाँ
-            </label>
-            <label>
-              <input
-                type="radio"
-                name="q6"
-                value="NO"
-                checked={form.q6 === "NO"}
-                onChange={handleChange}
-              />{" "}
-              नहीं
-            </label>
-          </div>
+          {/* Questions Q1-Q6 */}
+          {["q1","q2","q3","q4","q5","q6"].map((q, i) => (
+            <div key={q}>
+              <p style={styles.question}>{i+1}. {/* Question text */}
+                {`प्रश्न ${i+1}`}
+              </p>
+              <div style={styles.radioRow}>
+                <label>
+                  <input type="radio" name={q} value="YES" checked={form[q]==="YES"} onChange={handleChange}/> हाँ
+                </label>
+                <label>
+                  <input type="radio" name={q} value="NO" checked={form[q]==="NO"} onChange={handleChange}/> नहीं
+                </label>
+              </div>
+            </div>
+          ))}
 
           <label style={styles.label}>ANY SUGGESTION</label>
           <textarea
@@ -355,9 +218,7 @@ export default function MonthlyFeedbackForm() {
             style={styles.textarea}
           />
 
-          <button type="submit" style={styles.submitBtn}>
-            सबमिट करें
-          </button>
+          <button type="submit" style={styles.submitBtn}>सबमिट करें</button>
         </form>
       </div>
     </div>
@@ -365,49 +226,16 @@ export default function MonthlyFeedbackForm() {
 }
 
 const styles = {
-  page: {
-    background: "#f5f5f5",
-    padding: "30px",
-    display: "flex",
-    justifyContent: "center",
-  },
-  formCard: {
-    background: "white",
-    padding: "30px",
-    width: "65%",
-    borderRadius: "10px",
-    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-  },
+  page: { background: "#f5f5f5", padding: "30px", display: "flex", justifyContent: "center" },
+  formCard: { background: "white", padding: "30px", width: "65%", borderRadius: "10px", boxShadow: "0 0 10px rgba(0,0,0,0.1)" },
   heading: { fontSize: "26px", fontWeight: "bold", textAlign: "center" },
   subHeading: { textAlign: "center", marginBottom: "20px", fontSize: "18px" },
   infoLabel: { color: "red", fontWeight: "bold", textAlign: "center", marginBottom: "15px" },
   sectionTitle: { marginTop: "20px", fontSize: "18px", fontWeight: "bold" },
   label: { marginTop: "10px", fontWeight: "bold" },
-  input: {
-    width: "100%",
-    padding: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
-    marginBottom: "10px",
-  },
-  textarea: {
-    width: "100%",
-    padding: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
-    minHeight: "80px",
-  },
+  input: { width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "5px", marginBottom: "10px" },
+  textarea: { width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "5px", minHeight: "80px" },
   question: { marginTop: "15px", fontWeight: "bold" },
   radioRow: { display: "flex", gap: "20px", marginBottom: "10px" },
-  submitBtn: {
-    marginTop: "20px",
-    width: "100%",
-    padding: "15px",
-    background: "blue",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    fontSize: "18px",
-    cursor: "pointer",
-  },
+  submitBtn: { marginTop: "20px", width: "100%", padding: "15px", background: "blue", color: "white", border: "none", borderRadius: "5px", fontSize: "18px", cursor: "pointer" },
 };
