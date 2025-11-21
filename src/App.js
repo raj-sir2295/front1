@@ -6,6 +6,15 @@ const supabaseUrl = "https://vvyihexbcekdwdatknum.supabase.co";
 const supabaseKey = "sb_publishable_cJPjYHIBq8Uup1rlQ6S0fQ_lEhHXnJ4";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
+const questions = [
+  "आपको जो TEACHER पढ़ा रहे हैं उनका BEHAVIOUR आपके साथ कैसा है? 1) BAD  2) GOOD  3) GREAT",
+  "यदि आप Application लेकर या टीचर को बुलाकर CLASS से ABSENT होते हों तो, TEACHER आपका छुट्टा हुआ COURSE REPEAT कराते हैं क्या?",
+  "आपकी TEACHER का समझाने का तरीका आपको कैसा लगता है?",
+  "क्या आप जो TEACHER पढ़ा रहा है, उससे आप संतुष्ट हो क्या?",
+  "जो आप COMPUTER इस्तेमाल करते हो वह बराबर काम करते हैं या नहीं?",
+  "क्या आप CLASS में साफ सफाई से संतुष्ट हो या नहीं?"
+];
+
 export default function MonthlyFeedbackForm() {
   const [form, setForm] = useState({
     fullName: "",
@@ -31,7 +40,6 @@ export default function MonthlyFeedbackForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Date validation: only allow 20th-30th of current month
     const today = new Date();
     const day = today.getDate();
     if (day < 20 || day > 30) {
@@ -39,7 +47,6 @@ export default function MonthlyFeedbackForm() {
       return;
     }
 
-    // Form validation: all fields compulsory
     const requiredFields = [
       "fullName",
       "mobileNumber",
@@ -62,11 +69,9 @@ export default function MonthlyFeedbackForm() {
       }
     }
 
-    // Prepare current month & year
-    const feedbackMonth = today.getMonth() + 1; // 1-12
+    const feedbackMonth = today.getMonth() + 1;
     const feedbackYear = today.getFullYear();
 
-    // Check for duplicate entry
     const { data: existing, error: selectError } = await supabase
       .from("feedback")
       .select("*")
@@ -84,7 +89,6 @@ export default function MonthlyFeedbackForm() {
       return;
     }
 
-    // Insert feedback
     const { error } = await supabase.from("feedback").insert([
       {
         student_name: form.fullName,
@@ -193,18 +197,31 @@ export default function MonthlyFeedbackForm() {
 
           <h3 style={styles.sectionTitle}>प्रश्न</h3>
 
-          {/* Questions Q1-Q6 */}
-          {["q1","q2","q3","q4","q5","q6"].map((q, i) => (
+          {["q1", "q2", "q3", "q4", "q5", "q6"].map((q, i) => (
             <div key={q}>
-              <p style={styles.question}>{i+1}. {/* Question text */}
-                {`प्रश्न ${i+1}`}
+              <p style={styles.question}>
+                {i + 1}. {questions[i]}
               </p>
               <div style={styles.radioRow}>
                 <label>
-                  <input type="radio" name={q} value="YES" checked={form[q]==="YES"} onChange={handleChange}/> हाँ
+                  <input
+                    type="radio"
+                    name={q}
+                    value="YES"
+                    checked={form[q] === "YES"}
+                    onChange={handleChange}
+                  />{" "}
+                  हाँ
                 </label>
                 <label>
-                  <input type="radio" name={q} value="NO" checked={form[q]==="NO"} onChange={handleChange}/> नहीं
+                  <input
+                    type="radio"
+                    name={q}
+                    value="NO"
+                    checked={form[q] === "NO"}
+                    onChange={handleChange}
+                  />{" "}
+                  नहीं
                 </label>
               </div>
             </div>
@@ -218,7 +235,9 @@ export default function MonthlyFeedbackForm() {
             style={styles.textarea}
           />
 
-          <button type="submit" style={styles.submitBtn}>सबमिट करें</button>
+          <button type="submit" style={styles.submitBtn}>
+            सबमिट करें
+          </button>
         </form>
       </div>
     </div>
@@ -226,16 +245,54 @@ export default function MonthlyFeedbackForm() {
 }
 
 const styles = {
-  page: { background: "#f5f5f5", padding: "30px", display: "flex", justifyContent: "center" },
-  formCard: { background: "white", padding: "30px", width: "65%", borderRadius: "10px", boxShadow: "0 0 10px rgba(0,0,0,0.1)" },
+  page: {
+    background: "#f5f5f5",
+    padding: "30px",
+    display: "flex",
+    justifyContent: "center",
+  },
+  formCard: {
+    background: "white",
+    padding: "30px",
+    width: "65%",
+    borderRadius: "10px",
+    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
+  },
   heading: { fontSize: "26px", fontWeight: "bold", textAlign: "center" },
   subHeading: { textAlign: "center", marginBottom: "20px", fontSize: "18px" },
-  infoLabel: { color: "red", fontWeight: "bold", textAlign: "center", marginBottom: "15px" },
+  infoLabel: {
+    color: "red",
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: "15px",
+  },
   sectionTitle: { marginTop: "20px", fontSize: "18px", fontWeight: "bold" },
   label: { marginTop: "10px", fontWeight: "bold" },
-  input: { width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "5px", marginBottom: "10px" },
-  textarea: { width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "5px", minHeight: "80px" },
+  input: {
+    width: "100%",
+    padding: "10px",
+    border: "1px solid #ccc",
+    borderRadius: "5px",
+    marginBottom: "10px",
+  },
+  textarea: {
+    width: "100%",
+    padding: "10px",
+    border: "1px solid #ccc",
+    borderRadius: "5px",
+    minHeight: "80px",
+  },
   question: { marginTop: "15px", fontWeight: "bold" },
   radioRow: { display: "flex", gap: "20px", marginBottom: "10px" },
-  submitBtn: { marginTop: "20px", width: "100%", padding: "15px", background: "blue", color: "white", border: "none", borderRadius: "5px", fontSize: "18px", cursor: "pointer" },
+  submitBtn: {
+    marginTop: "20px",
+    width: "100%",
+    padding: "15px",
+    background: "blue",
+    color: "white",
+    border: "none",
+    borderRadius: "5px",
+    fontSize: "18px",
+    cursor: "pointer",
+  },
 };
