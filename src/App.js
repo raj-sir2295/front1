@@ -39,6 +39,7 @@ export default function MonthlyFeedbackForm() {
       return;
     }
 
+    // Check required fields
     const requiredFields = [
       "fullName",
       "mobileNumber",
@@ -64,6 +65,7 @@ export default function MonthlyFeedbackForm() {
     const feedbackMonth = today.getMonth() + 1;
     const feedbackYear = today.getFullYear();
 
+    // Duplicate check
     const { data: existing, error: selectError } = await supabase
       .from("feedback")
       .select("*")
@@ -123,6 +125,15 @@ export default function MonthlyFeedbackForm() {
     }
   };
 
+  const questions = [
+    "आपका जो TEACHER पढ़ा रहे हैं उसका BEHAVIOUR आपके साथ कैसा है?",
+    "यदि आप Application देकर या बिना देकर CLASS से ABSENT होते हैं तो TEACHER आपको छुट्टा हुआ COURSE REPEAT कराते हैं या नहीं?",
+    "आपकी TEACHER का समझाने का तरीका कैसा है?",
+    "क्या आप उस TEACHER से संतुष्ट हैं जो आपको पढ़ा रहा है?",
+    "जो आप COMPUTER इस्तेमाल करते हैं उसका CONDITION अच्छा है या नहीं?",
+    "क्या आप CLASS में साफ–सफाई से संबंधित कोई समस्या का सामना करते हैं?"
+  ];
+
   return (
     <div style={styles.page}>
       <div style={styles.formCard}>
@@ -159,17 +170,9 @@ export default function MonthlyFeedbackForm() {
 
           <h3 style={styles.sectionTitle}>प्रश्न</h3>
 
-          {[
-            "आपका जो TEACHER पढ़ा रहे हैं उसका BEHAVIOUR आपके साथ कैसा है?",
-            "यदि आप Application देकर या बिना देकर CLASS से ABSENT होते हैं तो TEACHER आपको छुट्टा हुआ COURSE REPEAT कराते हैं या नहीं?",
-            "आपकी TEACHER का समझाने का तरीका कैसा है?",
-            "क्या आपकी TEACHER पढ़ाते समय CLASS में साफ–सफाई से संबंधित कोई बात बताते हैं?",
-            "जो आप COMPUTER इस्तेमाल करते हैं उसका CONDITION अच्छा है या नहीं?",
-            "क्या आप CLASS में साफ–सफाई से संबंधित कोई समस्या का सामना करते हैं?"
-          ].map((text, i) => (
+          {questions.map((text, i) => (
             <div key={i}>
               <p style={styles.question}>{i + 1}. {text}</p>
-
               {i === 0 || i === 2 ? (
                 <div style={styles.radioRow}>
                   <label><input type="radio" name={`q${i+1}`} value="BAD" checked={form[`q${i+1}`] === "BAD"} onChange={handleChange}/> BAD</label>
@@ -186,7 +189,13 @@ export default function MonthlyFeedbackForm() {
           ))}
 
           <label style={styles.label}>ANY SUGGESTION</label>
-          <textarea name="suggestion" value={form.suggestion} onChange={handleChange} style={styles.textarea} />
+          <textarea
+            name="suggestion"
+            value={form.suggestion}
+            onChange={handleChange}
+            style={styles.textarea}
+          />
+          <p style={styles.tip}>टिप: कृपया सभी फ़ील्ड भरें।</p>
 
           <button type="submit" style={styles.submitBtn}>सबमिट करें</button>
         </form>
@@ -205,6 +214,7 @@ const styles = {
   label: { marginTop: "10px", fontWeight: "bold" },
   input: { width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "5px", marginBottom: "10px" },
   textarea: { width: "100%", padding: "10px", border: "1px solid #ccc", borderRadius: "5px", minHeight: "80px" },
+  tip: { fontSize: "14px", color: "gray", marginTop: "5px", fontStyle: "italic" },
   question: { marginTop: "15px", fontWeight: "bold" },
   radioRow: { display: "flex", gap: "20px", marginBottom: "10px" },
   submitBtn: { marginTop: "20px", width: "100%", padding: "15px", background: "blue", color: "white", border: "none", borderRadius: "5px", fontSize: "18px", cursor: "pointer" },
