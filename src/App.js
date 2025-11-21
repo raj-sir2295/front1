@@ -31,7 +31,7 @@ export default function MonthlyFeedbackForm() {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    // Date validation: only allow 20th-30th of current month
+    // Date validation
     const today = new Date();
     const day = today.getDate();
     if (day < 20 || day > 30) {
@@ -39,7 +39,6 @@ export default function MonthlyFeedbackForm() {
       return;
     }
 
-    // Form validation: all fields compulsory
     const requiredFields = [
       "fullName",
       "mobileNumber",
@@ -62,11 +61,9 @@ export default function MonthlyFeedbackForm() {
       }
     }
 
-    // Prepare current month & year
-    const feedbackMonth = today.getMonth() + 1; // 1-12
+    const feedbackMonth = today.getMonth() + 1;
     const feedbackYear = today.getFullYear();
 
-    // Check for duplicate entry
     const { data: existing, error: selectError } = await supabase
       .from("feedback")
       .select("*")
@@ -84,7 +81,6 @@ export default function MonthlyFeedbackForm() {
       return;
     }
 
-    // Insert feedback
     const { error } = await supabase.from("feedback").insert([
       {
         student_name: form.fullName,
@@ -140,83 +136,57 @@ export default function MonthlyFeedbackForm() {
           <h3 style={styles.sectionTitle}>STUDENT DETAILS</h3>
 
           <label style={styles.label}>FULL NAME *</label>
-          <input
-            name="fullName"
-            value={form.fullName}
-            onChange={handleChange}
-            style={styles.input}
-          />
+          <input name="fullName" value={form.fullName} onChange={handleChange} style={styles.input} />
 
           <label style={styles.label}>MOBILE NUMBER *</label>
-          <input
-            name="mobileNumber"
-            value={form.mobileNumber}
-            onChange={handleChange}
-            style={styles.input}
-          />
+          <input name="mobileNumber" value={form.mobileNumber} onChange={handleChange} style={styles.input} />
 
           <label style={styles.label}>BRANCH *</label>
-          <select
-            name="branch"
-            value={form.branch}
-            onChange={handleChange}
-            style={styles.input}
-          >
+          <select name="branch" value={form.branch} onChange={handleChange} style={styles.input}>
             <option value="">--Select Branch--</option>
             <option value="Lalganj">Lalganj</option>
             <option value="Vaishali Nagar">Vaishali Nagar</option>
           </select>
 
           <label style={styles.label}>JOINING COURSE *</label>
-          <input
-            name="joiningCourse"
-            value={form.joiningCourse}
-            onChange={handleChange}
-            style={styles.input}
-          />
+          <input name="joiningCourse" value={form.joiningCourse} onChange={handleChange} style={styles.input} />
 
           <label style={styles.label}>BATCH TIME *</label>
-          <input
-            name="batchTime"
-            value={form.batchTime}
-            onChange={handleChange}
-            style={styles.input}
-          />
+          <input name="batchTime" value={form.batchTime} onChange={handleChange} style={styles.input} />
 
           <label style={styles.label}>TEACHER NAME *</label>
-          <input
-            name="teacherName"
-            value={form.teacherName}
-            onChange={handleChange}
-            style={styles.input}
-          />
+          <input name="teacherName" value={form.teacherName} onChange={handleChange} style={styles.input} />
 
           <h3 style={styles.sectionTitle}>प्रश्न</h3>
 
-          {/* Questions Q1-Q6 */}
-          {["q1","q2","q3","q4","q5","q6"].map((q, i) => (
-            <div key={q}>
-              <p style={styles.question}>{i+1}. {/* Question text */}
-                {`प्रश्न ${i+1}`}
-              </p>
-              <div style={styles.radioRow}>
-                <label>
-                  <input type="radio" name={q} value="YES" checked={form[q]==="YES"} onChange={handleChange}/> हाँ
-                </label>
-                <label>
-                  <input type="radio" name={q} value="NO" checked={form[q]==="NO"} onChange={handleChange}/> नहीं
-                </label>
-              </div>
+          {[
+            "आपका जो TEACHER पढ़ा रहे हैं उसका BEHAVIOUR आपके साथ कैसा है?",
+            "यदि आप Application देकर या बिना देकर CLASS से ABSENT होते हैं तो TEACHER आपको छुट्टा हुआ COURSE REPEAT कराते हैं या नहीं?",
+            "आपकी TEACHER का समझाने का तरीका कैसा है?",
+            "क्या आपकी TEACHER पढ़ाते समय CLASS में साफ–सफाई से संबंधित कोई बात बताते हैं?",
+            "जो आप COMPUTER इस्तेमाल करते हैं उसका CONDITION अच्छा है या नहीं?",
+            "क्या आप CLASS में साफ–सफाई से संबंधित कोई समस्या का सामना करते हैं?"
+          ].map((text, i) => (
+            <div key={i}>
+              <p style={styles.question}>{i + 1}. {text}</p>
+
+              {i === 0 || i === 2 ? (
+                <div style={styles.radioRow}>
+                  <label><input type="radio" name={`q${i+1}`} value="BAD" checked={form[`q${i+1}`] === "BAD"} onChange={handleChange}/> BAD</label>
+                  <label><input type="radio" name={`q${i+1}`} value="GOOD" checked={form[`q${i+1}`] === "GOOD"} onChange={handleChange}/> GOOD</label>
+                  <label><input type="radio" name={`q${i+1}`} value="GREAT" checked={form[`q${i+1}`] === "GREAT"} onChange={handleChange}/> GREAT</label>
+                </div>
+              ) : (
+                <div style={styles.radioRow}>
+                  <label><input type="radio" name={`q${i+1}`} value="YES" checked={form[`q${i+1}`] === "YES"} onChange={handleChange}/> YES</label>
+                  <label><input type="radio" name={`q${i+1}`} value="NO" checked={form[`q${i+1}`] === "NO"} onChange={handleChange}/> NO</label>
+                </div>
+              )}
             </div>
           ))}
 
           <label style={styles.label}>ANY SUGGESTION</label>
-          <textarea
-            name="suggestion"
-            value={form.suggestion}
-            onChange={handleChange}
-            style={styles.textarea}
-          />
+          <textarea name="suggestion" value={form.suggestion} onChange={handleChange} style={styles.textarea} />
 
           <button type="submit" style={styles.submitBtn}>सबमिट करें</button>
         </form>
