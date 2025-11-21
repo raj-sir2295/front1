@@ -6,20 +6,9 @@ const supabaseUrl = "https://vvyihexbcekdwdatknum.supabase.co";
 const supabaseKey = "sb_publishable_cJPjYHIBq8Uup1rlQ6S0fQ_lEhHXnJ4";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
-const questions = [
-  "आपको जो TEACHER पढ़ा रहे हैं उनका BEHAVIOUR आपके साथ कैसा है? 1) BAD  2) GOOD  3) GREAT",
-  "यदि आप Application लेकर या टीचर को बुलाकर CLASS से ABSENT होते हों तो, TEACHER आपका छुट्टा हुआ COURSE REPEAT कराते हैं क्या?",
-  "आपकी TEACHER का समझाने का तरीका आपको कैसा लगता है?",
-  "क्या आप जो TEACHER पढ़ा रहा है, उससे आप संतुष्ट हो क्या?",
-  "जो आप COMPUTER इस्तेमाल करते हो वह बराबर काम करते हैं या नहीं?",
-  "क्या आप CLASS में साफ सफाई से संतुष्ट हो या नहीं?"
-];
-
 export default function MonthlyFeedbackForm() {
   const [form, setForm] = useState({
     fullName: "",
-    mobileNumber: "",
-    branch: "",
     joiningCourse: "",
     batchTime: "",
     teacherName: "",
@@ -34,23 +23,23 @@ export default function MonthlyFeedbackForm() {
 
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((s) => ({ ...s, [name]: value }));
+    setForm((data) => ({ ...data, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
+    // Limit date from 20 to 30
     const today = new Date();
-    const day = today.getDate();
-    if (day < 20 || day > 30) {
-      alert("कृपया ध्यान दें: फीडबैक फॉर्म केवल 20 तारीख़ से 30 तारीख़ तक भर सकते हैं।");
+    const d = today.getDate();
+    if (d < 20 || d > 30) {
+      alert("⚠️ कृपया ध्यान दें: आप केवल 20 से 30 तारीख के बीच फॉर्म भर सकते हैं!");
       return;
     }
 
+    // Required fields
     const requiredFields = [
       "fullName",
-      "mobileNumber",
-      "branch",
       "joiningCourse",
       "batchTime",
       "teacherName",
@@ -59,41 +48,36 @@ export default function MonthlyFeedbackForm() {
       "q3",
       "q4",
       "q5",
-      "q6",
+      "q6"
     ];
 
-    for (let field of requiredFields) {
-      if (!form[field]) {
-        alert(`कृपया "${field}" फ़ील्ड भरें।`);
+    for (let f of requiredFields) {
+      if (!form[f]) {
+        alert(`कृपया "${f}" फ़ील्ड भरें`);
         return;
       }
     }
 
-    const feedbackMonth = today.getMonth() + 1;
-    const feedbackYear = today.getFullYear();
+    const month = today.getMonth() + 1;
+    const year = today.getFullYear();
 
-    const { data: existing, error: selectError } = await supabase
+    // Duplicate check
+    const { data: exist } = await supabase
       .from("feedback")
       .select("*")
       .eq("student_name", form.fullName)
-      .eq("feedback_month", feedbackMonth)
-      .eq("feedback_year", feedbackYear);
+      .eq("feedback_month", month)
+      .eq("feedback_year", year);
 
-    if (selectError) {
-      alert("Error checking duplicates: " + selectError.message);
+    if (exist.length > 0) {
+      alert(`⚠️ "${form.fullName}" का इस महीने का फीडबैक पहले ही सबमिट हो चुका है!`);
       return;
     }
 
-    if (existing.length > 0) {
-      alert(`Duplicate entry! "${form.fullName}" के लिए फीडबैक इस महीने पहले ही सबमिट हो चुका है।`);
-      return;
-    }
-
+    // Insert feedback
     const { error } = await supabase.from("feedback").insert([
       {
         student_name: form.fullName,
-        mobile_number: form.mobileNumber,
-        branch: form.branch,
         joining_course: form.joiningCourse,
         batch_time: form.batchTime,
         teacher_name: form.teacherName,
@@ -104,19 +88,17 @@ export default function MonthlyFeedbackForm() {
         q5: form.q5,
         q6: form.q6,
         suggestion: form.suggestion,
-        feedback_month: feedbackMonth,
-        feedback_year: feedbackYear,
+        feedback_month: month,
+        feedback_year: year,
       },
     ]);
 
     if (error) {
       alert("Error: " + error.message);
     } else {
-      alert(`फीडबैक सफलतापूर्वक "${form.fullName}" के लिए सबमिट हुआ!`);
+      alert("🎉 फीडबैक सफलतापूर्वक सबमिट हो गया!");
       setForm({
         fullName: "",
-        mobileNumber: "",
-        branch: "",
         joiningCourse: "",
         batchTime: "",
         teacherName: "",
@@ -133,166 +115,93 @@ export default function MonthlyFeedbackForm() {
 
   return (
     <div style={styles.page}>
-      <div style={styles.formCard}>
-        <h1 style={styles.heading}>PROPER COMPUTER INSTITUTE OF TECHNOLOGIES</h1>
-        <h2 style={styles.subHeading}>MONTHLY FEEDBACK FORM</h2>
-        <p style={styles.infoLabel}>
-          कृपया ध्यान दें: इस महीने केवल 20 तारीख़ से 30 तारीख़ तक ही फीडबैक फॉर्म भर सकते हैं।
-        </p>
+      <div style={styles.card}>
+        <h1 style={styles.mainTitle}>PROPER COMPUTER INSTITUTE OF TECHNOLOGIES</h1>
+        <h2 style={styles.subTitle}>MONTHLY FEEDBACK FORM</h2>
 
         <form onSubmit={handleSubmit}>
-          <h3 style={styles.sectionTitle}>STUDENT DETAILS</h3>
+          {/* STUDENT DETAILS */}
+          <h3 style={styles.section}>STUDENT DETAILS</h3>
 
-          <label style={styles.label}>FULL NAME *</label>
-          <input
-            name="fullName"
-            value={form.fullName}
-            onChange={handleChange}
-            style={styles.input}
-          />
-
-          <label style={styles.label}>MOBILE NUMBER *</label>
-          <input
-            name="mobileNumber"
-            value={form.mobileNumber}
-            onChange={handleChange}
-            style={styles.input}
-          />
-
-          <label style={styles.label}>BRANCH *</label>
-          <select
-            name="branch"
-            value={form.branch}
-            onChange={handleChange}
-            style={styles.input}
-          >
-            <option value="">--Select Branch--</option>
-            <option value="Lalganj">Lalganj</option>
-            <option value="Vaishali Nagar">Vaishali Nagar</option>
-          </select>
+          <label style={styles.label}>NAME OF STUDENT *</label>
+          <input type="text" name="fullName" value={form.fullName} onChange={handleChange} style={styles.input} />
 
           <label style={styles.label}>JOINING COURSE *</label>
-          <input
-            name="joiningCourse"
-            value={form.joiningCourse}
-            onChange={handleChange}
-            style={styles.input}
-          />
+          <input type="text" name="joiningCourse" value={form.joiningCourse} onChange={handleChange} style={styles.input} />
 
           <label style={styles.label}>BATCH TIME *</label>
-          <input
-            name="batchTime"
-            value={form.batchTime}
-            onChange={handleChange}
-            style={styles.input}
-          />
+          <input type="text" name="batchTime" value={form.batchTime} onChange={handleChange} style={styles.input} />
 
           <label style={styles.label}>TEACHER NAME *</label>
-          <input
-            name="teacherName"
-            value={form.teacherName}
-            onChange={handleChange}
-            style={styles.input}
-          />
+          <input type="text" name="teacherName" value={form.teacherName} onChange={handleChange} style={styles.input} />
 
-          <h3 style={styles.sectionTitle}>प्रश्न</h3>
+          <h3 style={styles.section}>QUESTION :-</h3>
 
-          {["q1", "q2", "q3", "q4", "q5", "q6"].map((q, i) => (
-            <div key={q}>
-              <p style={styles.question}>
-                {i + 1}. {questions[i]}
-              </p>
-              <div style={styles.radioRow}>
-                <label>
-                  <input
-                    type="radio"
-                    name={q}
-                    value="YES"
-                    checked={form[q] === "YES"}
-                    onChange={handleChange}
-                  />{" "}
-                  हाँ
-                </label>
-                <label>
-                  <input
-                    type="radio"
-                    name={q}
-                    value="NO"
-                    checked={form[q] === "NO"}
-                    onChange={handleChange}
-                  />{" "}
-                  नहीं
-                </label>
-              </div>
-            </div>
-          ))}
+          {/* Q1 */}
+          <p style={styles.q}>1. आपको जो TEACHER पढ़ा रहे हैं उनका BEHAVIOUR आपके साथ कैसा है?</p>
+          {render3("q1", form, handleChange)}
 
+          {/* Q2 */}
+          <p style={styles.q}>2. यदि आप Application लेकर या टीचर को बताकर CLASS से ABSENT होते हों तो, TEACHER आपका छुटा हुआ COURSE REPEAT कराते हैं क्या?</p>
+          {render2("q2", form, handleChange)}
+
+          {/* Q3 */}
+          <p style={styles.q}>3. आपकी TEACHER का समझाने का तरीका आपको कैसा लगता है?</p>
+          {render3("q3", form, handleChange)}
+
+          {/* Q4 */}
+          <p style={styles.q}>4. क्या आप जो TEACHER पढ़ा रहा है, उससे आप संतुष्ट हो क्या?</p>
+          {render2("q4", form, handleChange)}
+
+          {/* Q5 */}
+          <p style={styles.q}>5. जो आप COMPUTER इस्तेमाल करते हो वह बराबर काम करते हैं या नहीं?</p>
+          {render2("q5", form, handleChange)}
+
+          {/* Q6 */}
+          <p style={styles.q}>6. क्या आप CLASS में साफ सफाई से संतुष्ट हो या नहीं?</p>
+          {render2("q6", form, handleChange)}
+
+          {/* Suggestion */}
           <label style={styles.label}>ANY SUGGESTION</label>
-          <textarea
-            name="suggestion"
-            value={form.suggestion}
-            onChange={handleChange}
-            style={styles.textarea}
-          />
+          <textarea name="suggestion" value={form.suggestion} onChange={handleChange} style={styles.textarea}></textarea>
 
-          <button type="submit" style={styles.submitBtn}>
-            सबमिट करें
-          </button>
+          <button type="submit" style={styles.btn}>सबमिट करें</button>
         </form>
       </div>
     </div>
   );
 }
 
+/* Render Options */
+function render2(name, form, handleChange) {
+  return (
+    <div style={styles.row}>
+      <label><input type="radio" name={name} value="YES" checked={form[name] === "YES"} onChange={handleChange} /> YES</label>
+      <label><input type="radio" name={name} value="NO" checked={form[name] === "NO"} onChange={handleChange} /> NO</label>
+    </div>
+  );
+}
+
+function render3(name, form, handleChange) {
+  return (
+    <div style={styles.row}>
+      <label><input type="radio" name={name} value="BAD" checked={form[name] === "BAD"} onChange={handleChange} /> BAD</label>
+      <label><input type="radio" name={name} value="GOOD" checked={form[name] === "GOOD"} onChange={handleChange} /> GOOD</label>
+      <label><input type="radio" name={name} value="GREAT" checked={form[name] === "GREAT"} onChange={handleChange} /> GREAT</label>
+    </div>
+  );
+}
+
 const styles = {
-  page: {
-    background: "#f5f5f5",
-    padding: "30px",
-    display: "flex",
-    justifyContent: "center",
-  },
-  formCard: {
-    background: "white",
-    padding: "30px",
-    width: "65%",
-    borderRadius: "10px",
-    boxShadow: "0 0 10px rgba(0,0,0,0.1)",
-  },
-  heading: { fontSize: "26px", fontWeight: "bold", textAlign: "center" },
-  subHeading: { textAlign: "center", marginBottom: "20px", fontSize: "18px" },
-  infoLabel: {
-    color: "red",
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: "15px",
-  },
-  sectionTitle: { marginTop: "20px", fontSize: "18px", fontWeight: "bold" },
-  label: { marginTop: "10px", fontWeight: "bold" },
-  input: {
-    width: "100%",
-    padding: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
-    marginBottom: "10px",
-  },
-  textarea: {
-    width: "100%",
-    padding: "10px",
-    border: "1px solid #ccc",
-    borderRadius: "5px",
-    minHeight: "80px",
-  },
-  question: { marginTop: "15px", fontWeight: "bold" },
-  radioRow: { display: "flex", gap: "20px", marginBottom: "10px" },
-  submitBtn: {
-    marginTop: "20px",
-    width: "100%",
-    padding: "15px",
-    background: "blue",
-    color: "white",
-    border: "none",
-    borderRadius: "5px",
-    fontSize: "18px",
-    cursor: "pointer",
-  },
+  page: { padding: 30, display: "flex", justifyContent: "center", background: "#f3f3f3" },
+  card: { background: "white", padding: 30, width: "65%", borderRadius: 8, boxShadow: "0 0 10px rgba(0,0,0,0.1)" },
+  mainTitle: { textAlign: "center", fontSize: 24, fontWeight: "bold" },
+  subTitle: { textAlign: "center", fontSize: 18, marginBottom: 20 },
+  section: { marginTop: 20, fontWeight: "bold", fontSize: 18 },
+  label: { display: "block", marginTop: 10, fontWeight: "bold" },
+  input: { width: "100%", padding: 10, marginTop: 5, border: "1px solid #ccc", borderRadius: 5 },
+  textarea: { width: "100%", padding: 10, border: "1px solid #ccc", borderRadius: 5, minHeight: 80 },
+  q: { marginTop: 15, fontWeight: "bold" },
+  row: { display: "flex", gap: 20, marginTop: 5, marginBottom: 10 },
+  btn: { width: "100%", padding: 15, background: "blue", color: "white", border: "none", borderRadius: 5, marginTop: 20, fontSize: 18 }
 };
