@@ -127,11 +127,11 @@ export default function MonthlyFeedbackForm() {
 
   const questions = [
     "आपका जो TEACHER पढ़ा रहे हैं उसका BEHAVIOUR आपके साथ कैसा है?",
-    "यदि आप Application देकर या बिना देकर CLASS से ABSENT होते हैं तो TEACHER आपको छुट्टा हुआ COURSE REPEAT कराते हैं या नहीं?",
+    "यदि आप आवेदन देकर या Teacher को बता कर Classes से absent होते हैं,तो क्या Teacher आपको छूटा हुआ कोर्स Repeat करवाते हैं या नहीं?",
     "आपकी TEACHER का समझाने का तरीका कैसा है?",
-    "क्या आप उस TEACHER से संतुष्ट हैं जो आपको पढ़ा रहा है?",
+    "क्या आप अपने उन Teacher से संतुष्ट हैं जो आपको पढ़ा रहे हैं?",
     "जो आप COMPUTER इस्तेमाल करते हैं उसका CONDITION अच्छा है या नहीं?",
-    "क्या आप CLASS में साफ–सफाई से संबंधित कोई समस्या का सामना करते हैं?"
+    "क्या आप class में साफ़–सफ़ाई से संतुष्ट हैं? "
   ];
 
   return (
