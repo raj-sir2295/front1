@@ -3,7 +3,8 @@ import { createClient } from "@supabase/supabase-js";
 
 // Supabase setup
 const supabaseUrl = "https://vvyihexbcekdwdatknum.supabase.co";
-const supabaseKey = "sb_publishable_cJPjYHIBq8Uup1rlQ6S0fQ_lEhHXnJ4";
+const supabaseKey =
+  "sb_publishable_cJPjYHIBq8Uup1rlQ6S0fQ_lEhHXnJ4";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function MonthlyFeedbackForm() {
@@ -23,6 +24,9 @@ export default function MonthlyFeedbackForm() {
     suggestion: "",
   });
 
+  const [hover, setHover] = useState(false);
+  const [focused, setFocused] = useState("");
+
   const handleChange = (e) => {
     const { name, value } = e.target;
     setForm((s) => ({ ...s, [name]: value }));
@@ -40,7 +44,6 @@ export default function MonthlyFeedbackForm() {
       return;
     }
 
-    // Required fields
     const requiredFields = [
       "fullName",
       "mobileNumber",
@@ -55,6 +58,7 @@ export default function MonthlyFeedbackForm() {
       "q5",
       "q6",
     ];
+
     for (let field of requiredFields) {
       if (!form[field]) {
         alert(`कृपया "${field}" फ़ील्ड भरें।`);
@@ -65,7 +69,6 @@ export default function MonthlyFeedbackForm() {
     const feedbackMonth = today.getMonth() + 1;
     const feedbackYear = today.getFullYear();
 
-    // Clean text
     const clean = (v) => (v ? v.toString().trim().toLowerCase() : "");
 
     const cleanedData = {
@@ -84,14 +87,14 @@ export default function MonthlyFeedbackForm() {
       suggestion: clean(form.suggestion),
     };
 
-    // STEP 1: Check if mobile number is registered
+    // STEP 1: Check registered mobile
     try {
-      const { data: registered, error: regError } = await supabase
+      const { data: registered } = await supabase
         .from("registered_students")
         .select("*")
         .eq("mobile_number", cleanedData.mobileNumber);
 
-      if (regError || !registered || registered.length === 0) {
+      if (!registered || registered.length === 0) {
         alert(
           "यह मोबाइल नंबर हमारे रिकॉर्ड में नहीं है! केवल registered mobile number से ही feedback दिया जा सकता है।"
         );
@@ -114,16 +117,22 @@ export default function MonthlyFeedbackForm() {
         .eq("feedback_year", feedbackYear);
 
       if (selectError) {
-        alert("डुप्लिकेट चेक करते समय समस्या आई, कृपया बाद में प्रयास करें।");
+        alert(
+          "डुप्लिकेट चेक करते समय समस्या आई, कृपया बाद में प्रयास करें।"
+        );
         return;
       }
 
       if (existing.length > 0) {
-        alert(`"${cleanedData.fullName}" इस महीने पहले ही फीडबैक दे चुके हैं।`);
+        alert(
+          `"${cleanedData.fullName}" इस महीने पहले ही फीडबैक दे चुके हैं।`
+        );
         return;
       }
     } catch {
-      alert("डुप्लिकेट चेक करते समय समस्या आई, कृपया बाद में प्रयास करें।");
+      alert(
+        "डुप्लिकेट चेक करते समय समस्या आई, कृपया बाद में प्रयास करें।"
+      );
       return;
     }
 
@@ -151,7 +160,9 @@ export default function MonthlyFeedbackForm() {
     if (error) {
       alert("कुछ समस्या आई, कृपया बाद में प्रयास करें।");
     } else {
-      alert(`फीडबैक सफलतापूर्वक "${cleanedData.fullName}" के लिए सबमिट हुआ!`);
+      alert(
+        `फीडबैक सफलतापूर्वक "${cleanedData.fullName}" के लिए सबमिट हुआ!`
+      );
       setForm({
         fullName: "",
         mobileNumber: "",
@@ -170,82 +181,131 @@ export default function MonthlyFeedbackForm() {
     }
   };
 
-  // ✅ Clean JSX using all functions & styles
   return (
     <div style={styles.page}>
       <div style={styles.formCard}>
+        <h2 style={styles.instituteHeading}>
+          PROPER COMPUTER INSTITUTE OF TECHNOLOGIES
+        </h2>
         <h2 style={styles.heading}>Monthly Feedback Form</h2>
+        <p style={styles.warning}>
+          कृपया ध्यान दें: फीडबैक फॉर्म केवल 20 तारीख़ से 30 तारीख़ तक भर सकते हैं।
+        </p>
         <form onSubmit={handleSubmit}>
-          <label style={styles.label}>Full Name</label>
-          <input
-            style={styles.input}
-            name="fullName"
-            value={form.fullName}
-            onChange={handleChange}
-          />
-
-          <label style={styles.label}>Mobile Number</label>
-          <input
-            style={styles.input}
-            name="mobileNumber"
-            value={form.mobileNumber}
-            onChange={handleChange}
-          />
-
-          <label style={styles.label}>Branch</label>
-          <input
-            style={styles.input}
-            name="branch"
-            value={form.branch}
-            onChange={handleChange}
-          />
-
-          <label style={styles.label}>Joining Course</label>
-          <input
-            style={styles.input}
-            name="joiningCourse"
-            value={form.joiningCourse}
-            onChange={handleChange}
-          />
-
-          <label style={styles.label}>Batch Time</label>
-          <input
-            style={styles.input}
-            name="batchTime"
-            value={form.batchTime}
-            onChange={handleChange}
-          />
-
-          <label style={styles.label}>Teacher Name</label>
-          <input
-            style={styles.input}
-            name="teacherName"
-            value={form.teacherName}
-            onChange={handleChange}
-          />
-
-          {/* Questions q1 - q6 */}
-          {["q1", "q2", "q3", "q4", "q5", "q6"].map((q) => (
-            <div key={q}>
-              <label style={styles.label}>{q.toUpperCase()}</label>
+          {[
+            { label: "Full Name", name: "fullName" },
+            { label: "Mobile Number", name: "mobileNumber" },
+            { label: "Joining Course", name: "joiningCourse" },
+            { label: "Batch Time", name: "batchTime" },
+            { label: "Teacher Name", name: "teacherName" },
+          ].map((item) => (
+            <div key={item.name}>
+              <label style={styles.label}>{item.label}</label>
               <input
-                style={styles.input}
-                name={q}
-                value={form[q]}
+                style={{
+                  ...styles.input,
+                  ...(focused === item.name ? styles.inputFocus : {}),
+                }}
+                name={item.name}
+                value={form[item.name]}
                 onChange={handleChange}
+                onFocus={() => setFocused(item.name)}
+                onBlur={() => setFocused("")}
               />
             </div>
           ))}
 
-          <label style={styles.label}>Suggestion</label>
-          <textarea
-            style={styles.textarea}
-            name="suggestion"
-            value={form.suggestion}
+          <label style={styles.label}>Branch</label>
+          <select
+            style={{
+              ...styles.input,
+              ...(focused === "branch" ? styles.inputFocus : {}),
+            }}
+            name="branch"
+            value={form.branch}
             onChange={handleChange}
-          />
+            onFocus={() => setFocused("branch")}
+            onBlur={() => setFocused("")}
+          >
+            <option value="">--Select Branch--</option>
+            <option value="Lalganj">Lalganj</option>
+            <option value="Vaishali Nagar">Vaishali Nagar</option>
+          </select>
 
-          <button type="submit" style={styles.submitBtn}>
+          {/* Q1 to Q6 */}
+          {[
+            {
+              label: "Q1: आपको जो Teacher पढ़ा रहे हैं उनका BEHAVIOUR आपके साथ कैसा है?",
+              name: "q1",
+              options: ["bad", "good", "great"],
+            },
+            {
+              label:
+                "Q2: यदि आप Application देकर या Teacher को बताकर Classes से Absent होते हैं तो Teacher आपको छूटा हुआ Course Repeat कराते हैं या नहीं?",
+              name: "q2",
+              options: ["yes", "no"],
+            },
+            {
+              label:
+                "Q3: आपको जो Teacher पढ़ा रहे हैं उनके समझाने का तरीका आपको कैसा लगता है?",
+              name: "q3",
+              options: ["bad", "good", "great"],
+            },
+            {
+              label: "Q4: क्या आप अपने Teacher से संतुष्ट हैं जो आपको पढ़ा रहे हैं?",
+              name: "q4",
+              options: ["yes", "no"],
+            },
+            {
+              label: "Q5: जो आप Computer Use कर रहे हैं वो बराबर काम करते हैं या नहीं?",
+              name: "q5",
+              options: ["yes", "no"],
+            },
+            {
+              label: "Q6: क्या आप Class में साफ सफाई से संतुष्ट हैं?",
+              name: "q6",
+              options: ["yes", "no"],
+            },
+          ].map((q) => (
+            <div style={styles.question} key={q.name}>
+              <label style={styles.label}>{q.label}</label>
+              {q.options.map((opt) => (
+                <label style={styles.radioLabel} key={opt}>
+                  <input
+                    type="radio"
+                    name={q.name}
+                    value={opt}
+                    checked={form[q.name] === opt}
+                    onChange={handleChange}
+                  />{" "}
+                  {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                </label>
+              ))}
+            </div>
+          ))}
+
+          {/* Suggestion */}
+          <div style={styles.question}>
+            <label style={styles.label}>Suggestion</label>
+            <textarea
+              style={{
+                ...styles.textarea,
+                ...(focused === "suggestion" ? styles.inputFocus : {}),
+              }}
+              name="suggestion"
+              value={form.suggestion}
+              onChange={handleChange}
+              onFocus={() => setFocused("suggestion")}
+              onBlur={() => setFocused("")}
+            />
+          </div>
+
+          <button
+            type="submit"
+            style={{ ...styles.submitBtn, ...(hover ? styles.submitBtnHover : {}) }}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+          >
             Submit
           </button>
         </form>
@@ -258,28 +318,42 @@ const styles = {
   page: {
     display: "flex",
     justifyContent: "center",
-    background: "#f7f7f7",
+    alignItems: "center",
+    background: "linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%)",
     padding: "20px",
     minHeight: "100vh",
   },
   formCard: {
-    background: "white",
-    padding: "25px",
+    background: "linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%)",
+    padding: "25px 35px",
     width: "100%",
     maxWidth: "700px",
-    borderRadius: "10px",
-    boxShadow: "0 0 15px rgba(0,0,0,0.2)",
+    borderRadius: "12px",
+    boxShadow: "0 8px 25px rgba(0,0,0,0.3)",
+  },
+  instituteHeading: {
+    textAlign: "center",
+    fontSize: "20px",
+    fontWeight: "bold",
+    marginBottom: "10px",
+    color: "#333",
   },
   heading: {
     textAlign: "center",
     fontSize: "22px",
     fontWeight: "bold",
-    marginBottom: "15px",
+    marginBottom: "10px",
+  },
+  warning: {
+    color: "red",
+    fontWeight: "bold",
+    marginBottom: "20px",
+    textAlign: "center",
   },
   label: {
     fontWeight: "bold",
-    marginBottom: "5px",
     display: "block",
+    marginBottom: "5px",
   },
   input: {
     width: "100%",
@@ -287,6 +361,8 @@ const styles = {
     marginBottom: "15px",
     borderRadius: "5px",
     border: "1px solid #ccc",
+    outline: "none",
+    transition: "0.3s",
   },
   textarea: {
     width: "100%",
@@ -295,17 +371,35 @@ const styles = {
     borderRadius: "5px",
     border: "1px solid #ccc",
     marginBottom: "20px",
+    outline: "none",
+    transition: "0.3s",
+  },
+  question: {
+    marginBottom: "20px",
+  },
+  radioLabel: {
+    marginRight: "20px",
+    display: "inline-block",
+    marginTop: "5px",
   },
   submitBtn: {
     width: "100%",
     padding: "12px",
     marginTop: "10px",
-    background: "blue",
+    background: "linear-gradient(90deg, #36d1dc 0%, #5b86e5 100%)",
     color: "white",
     border: "none",
-    borderRadius: "5px",
+    borderRadius: "8px",
     fontWeight: "bold",
     cursor: "pointer",
     fontSize: "16px",
+    transition: "0.3s",
+  },
+  submitBtnHover: {
+    background: "linear-gradient(90deg, #5b86e5 0%, #36d1dc 100%)",
+  },
+  inputFocus: {
+    borderColor: "#36d1dc",
+    boxShadow: "0 0 5px rgba(54, 209, 220, 0.5)",
   },
 };
