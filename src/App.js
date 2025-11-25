@@ -230,4 +230,152 @@ export default function MonthlyFeedbackForm() {
             onBlur={() => setFocused("")}
           >
             <option value="">--Select Branch--</option>
-            <option value="Lalg
+            <option value="Lalganj">Lalganj</option>
+            <option value="Vaishali Nagar">Vaishali Nagar</option>
+          </select>
+
+          {/* Q1 to Q6 */}
+          {[ 
+            { label: "Q1: Teacher का Behaviour कैसा है?", name: "q1", options: ["bad", "good", "great"] },
+            { label: "Q2: Absence पर Course Repeat करवाते हैं?", name: "q2", options: ["yes", "no"] },
+            { label: "Q3: Teacher का समझाने का तरीका कैसा है?", name: "q3", options: ["bad", "good", "great"] },
+            { label: "Q4: Teacher से संतुष्ट हैं?", name: "q4", options: ["yes", "no"] },
+            { label: "Q5: Computer Condition सही है?", name: "q5", options: ["yes", "no"] },
+            { label: "Q6: Class में सफाई से संतुष्ट हैं?", name: "q6", options: ["yes", "no"] },
+          ].map((q) => (
+            <div style={styles.question} key={q.name}>
+              <label style={styles.label}>{q.label}</label>
+              {q.options.map((opt) => (
+                <label style={styles.radioLabel} key={opt}>
+                  <input
+                    type="radio"
+                    name={q.name}
+                    value={opt}
+                    checked={form[q.name] === opt}
+                    onChange={handleChange}
+                  />{" "}
+                  {opt.charAt(0).toUpperCase() + opt.slice(1)}
+                </label>
+              ))}
+            </div>
+          ))}
+
+          {/* Suggestion */}
+          <div style={styles.question}>
+            <label style={styles.label}>Suggestion</label>
+            <textarea
+              style={{
+                ...styles.textarea,
+                ...(focused === "suggestion" ? styles.inputFocus : {}),
+              }}
+              name="suggestion"
+              value={form.suggestion}
+              onChange={handleChange}
+              onFocus={() => setFocused("suggestion")}
+              onBlur={() => setFocused("")}
+            />
+          </div>
+
+          <button
+            type="submit"
+            style={{ ...styles.submitBtn, ...(hover ? styles.submitBtnHover : {}) }}
+            onMouseEnter={() => setHover(true)}
+            onMouseLeave={() => setHover(false)}
+          >
+            Submit
+          </button>
+        </form>
+      </div>
+    </div>
+  );
+}
+
+const styles = {
+  page: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background: "linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%)",
+    padding: "20px",
+    minHeight: "100vh",
+  },
+  formCard: {
+    background: "linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%)",
+    padding: "25px 35px",
+    width: "100%",
+    maxWidth: "700px",
+    borderRadius: "12px",
+    boxShadow: "0 8px 25px rgba(0,0,0,0.3)",
+  },
+  instituteHeading: {
+    textAlign: "center",
+    fontSize: "20px",
+    fontWeight: "bold",
+    marginBottom: "10px",
+    color: "#333",
+  },
+  heading: {
+    textAlign: "center",
+    fontSize: "22px",
+    fontWeight: "bold",
+    marginBottom: "10px",
+  },
+  warning: {
+    color: "red",
+    fontWeight: "bold",
+    marginBottom: "20px",
+    textAlign: "center",
+  },
+  label: {
+    fontWeight: "bold",
+    display: "block",
+    marginBottom: "5px",
+  },
+  input: {
+    width: "100%",
+    padding: "10px",
+    marginBottom: "15px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+    outline: "none",
+    transition: "0.3s",
+  },
+  textarea: {
+    width: "100%",
+    minHeight: "80px",
+    padding: "10px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+    marginBottom: "20px",
+    outline: "none",
+    transition: "0.3s",
+  },
+  question: {
+    marginBottom: "20px",
+  },
+  radioLabel: {
+    marginRight: "20px",
+    display: "inline-block",
+    marginTop: "5px",
+  },
+  submitBtn: {
+    width: "100%",
+    padding: "12px",
+    marginTop: "10px",
+    background: "linear-gradient(90deg, #36d1dc 0%, #5b86e5 100%)",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    fontSize: "16px",
+    transition: "0.3s",
+  },
+  submitBtnHover: {
+    background: "linear-gradient(90deg, #5b86e5 0%, #36d1dc 100%)",
+  },
+  inputFocus: {
+    borderColor: "#36d1dc",
+    boxShadow: "0 0 5px rgba(54, 209, 220, 0.5)",
+  },
+};
