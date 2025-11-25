@@ -34,7 +34,9 @@ export default function MonthlyFeedbackForm() {
     const today = new Date();
     const day = today.getDate();
     if (day < 20 || day > 30) {
-      alert("कृपया ध्यान दें: फीडबैक फॉर्म केवल 20 तारीख़ से 30 तारीख़ तक भर सकते हैं।");
+      alert(
+        "कृपया ध्यान दें: फीडबैक फॉर्म केवल 20 तारीख़ से 30 तारीख़ तक भर सकते हैं।"
+      );
       return;
     }
 
@@ -82,59 +84,50 @@ export default function MonthlyFeedbackForm() {
       suggestion: clean(form.suggestion),
     };
 
-    // ⭐ STEP 1: Check if mobile number is registered
-    let registered, regError;
-
+    // STEP 1: Check if mobile number is registered
     try {
-      const result = await supabase
+      const { data: registered, error: regError } = await supabase
         .from("registered_students")
         .select("*")
         .eq("mobile_number", cleanedData.mobileNumber);
 
-      registered = result.data;
-      regError = result.error;
-    } catch (err) {
-      regError = err;
-    }
-
-    // ⭐ always show your message (no Supabase error to user)
-    if (regError) {
-      alert("यह मोबाइल नंबर हमारे रिकॉर्ड में नहीं है! केवल registered mobile number से ही feedback दिया जा सकता है।");
+      if (regError || !registered || registered.length === 0) {
+        alert(
+          "यह मोबाइल नंबर हमारे रिकॉर्ड में नहीं है! केवल registered mobile number से ही feedback दिया जा सकता है।"
+        );
+        return;
+      }
+    } catch {
+      alert(
+        "यह मोबाइल नंबर हमारे रिकॉर्ड में नहीं है! केवल registered mobile number से ही feedback दिया जा सकता है।"
+      );
       return;
     }
 
-    if (!registered || registered.length === 0) {
-      alert("यह मोबाइल नंबर हमारे रिकॉर्ड में नहीं है! केवल registered mobile number से ही feedback दिया जा सकता है।");
-      return;
-    }
-
-    // ⭐ STEP 2: Duplicate check
-    let existing, selectError;
+    // STEP 2: Duplicate check
     try {
-      const result2 = await supabase
+      const { data: existing, error: selectError } = await supabase
         .from("feedback")
         .select("*")
         .eq("student_name", cleanedData.fullName)
         .eq("feedback_month", feedbackMonth)
         .eq("feedback_year", feedbackYear);
 
-      existing = result2.data;
-      selectError = result2.error;
-    } catch (err) {
-      selectError = err;
-    }
+      if (selectError) {
+        alert("डुप्लिकेट चेक करते समय समस्या आई, कृपया बाद में प्रयास करें।");
+        return;
+      }
 
-    if (selectError) {
+      if (existing.length > 0) {
+        alert(`"${cleanedData.fullName}" इस महीने पहले ही फीडबैक दे चुके हैं।`);
+        return;
+      }
+    } catch {
       alert("डुप्लिकेट चेक करते समय समस्या आई, कृपया बाद में प्रयास करें।");
       return;
     }
 
-    if (existing.length > 0) {
-      alert(`"${cleanedData.fullName}" इस महीने पहले ही फीडबैक दे चुके हैं.`);
-      return;
-    }
-
-    // ⭐ STEP 3: INSERT FEEDBACK
+    // STEP 3: Insert feedback
     const { error } = await supabase.from("feedback").insert([
       {
         student_name: cleanedData.fullName,
@@ -177,99 +170,132 @@ export default function MonthlyFeedbackForm() {
     }
   };
 
+  // ✅ Clean JSX using all functions & styles
   return (
-    <div>
-      {/* FORM JSX (same as you already have) */}
-      {/* आपने ऊपर जो UI/QUESTIONS वाली code दी थी, वो same ही रहेगी */}
+    <div style={styles.page}>
+      <div style={styles.formCard}>
+        <h2 style={styles.heading}>Monthly Feedback Form</h2>
+        <form onSubmit={handleSubmit}>
+          <label style={styles.label}>Full Name</label>
+          <input
+            style={styles.input}
+            name="fullName"
+            value={form.fullName}
+            onChange={handleChange}
+          />
+
+          <label style={styles.label}>Mobile Number</label>
+          <input
+            style={styles.input}
+            name="mobileNumber"
+            value={form.mobileNumber}
+            onChange={handleChange}
+          />
+
+          <label style={styles.label}>Branch</label>
+          <input
+            style={styles.input}
+            name="branch"
+            value={form.branch}
+            onChange={handleChange}
+          />
+
+          <label style={styles.label}>Joining Course</label>
+          <input
+            style={styles.input}
+            name="joiningCourse"
+            value={form.joiningCourse}
+            onChange={handleChange}
+          />
+
+          <label style={styles.label}>Batch Time</label>
+          <input
+            style={styles.input}
+            name="batchTime"
+            value={form.batchTime}
+            onChange={handleChange}
+          />
+
+          <label style={styles.label}>Teacher Name</label>
+          <input
+            style={styles.input}
+            name="teacherName"
+            value={form.teacherName}
+            onChange={handleChange}
+          />
+
+          {/* Questions q1 - q6 */}
+          {["q1", "q2", "q3", "q4", "q5", "q6"].map((q) => (
+            <div key={q}>
+              <label style={styles.label}>{q.toUpperCase()}</label>
+              <input
+                style={styles.input}
+                name={q}
+                value={form[q]}
+                onChange={handleChange}
+              />
+            </div>
+          ))}
+
+          <label style={styles.label}>Suggestion</label>
+          <textarea
+            style={styles.textarea}
+            name="suggestion"
+            value={form.suggestion}
+            onChange={handleChange}
+          />
+
+          <button type="submit" style={styles.submitBtn}>
+            Submit
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
+
 const styles = {
   page: {
     display: "flex",
     justifyContent: "center",
     background: "#f7f7f7",
     padding: "20px",
-    minHeight: "100vh"
+    minHeight: "100vh",
   },
-
   formCard: {
     background: "white",
     padding: "25px",
     width: "100%",
     maxWidth: "700px",
     borderRadius: "10px",
-    boxShadow: "0 0 15px rgba(0,0,0,0.2)"
+    boxShadow: "0 0 15px rgba(0,0,0,0.2)",
   },
-
   heading: {
     textAlign: "center",
     fontSize: "22px",
     fontWeight: "bold",
-    marginBottom: "5px"
+    marginBottom: "15px",
   },
-
-  subHeading: {
-    textAlign: "center",
-    fontSize: "18px",
-    marginBottom: "10px"
-  },
-
-  infoLabel: {
-    color: "red",
-    fontWeight: "bold",
-    textAlign: "center",
-    marginBottom: "20px"
-  },
-
-  sectionTitle: {
-    fontSize: "18px",
-    fontWeight: "bold",
-    marginTop: "20px",
-    marginBottom: "10px"
-  },
-
   label: {
     fontWeight: "bold",
     marginBottom: "5px",
-    display: "block"
+    display: "block",
   },
-
   input: {
     width: "100%",
     padding: "10px",
     marginBottom: "15px",
     borderRadius: "5px",
-    border: "1px solid #ccc"
+    border: "1px solid #ccc",
   },
-
-  question: {
-    fontWeight: "bold",
-    marginTop: "10px"
-  },
-
-  radioRow: {
-    display: "flex",
-    gap: "20px",
-    marginBottom: "15px",
-    marginTop: "5px"
-  },
-
   textarea: {
     width: "100%",
     minHeight: "80px",
     padding: "10px",
     borderRadius: "5px",
     border: "1px solid #ccc",
-    marginBottom: "20px"
+    marginBottom: "20px",
   },
-
-  tip: {
-    fontSize: "12px",
-    color: "gray",
-    marginBottom: "10px"
-  },
-
   submitBtn: {
     width: "100%",
     padding: "12px",
@@ -280,6 +306,6 @@ const styles = {
     borderRadius: "5px",
     fontWeight: "bold",
     cursor: "pointer",
-    fontSize: "16px"
-  }
+    fontSize: "16px",
+  },
 };
