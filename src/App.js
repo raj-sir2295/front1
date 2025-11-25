@@ -329,4 +329,4 @@ const styles = {
   heading: { fontSize: "26px", fontWeight: "bold", textAlign: "center" },
   subHeading: { textAlign: "center", marginBottom: "20px", fontSize: "18px" },
   infoLabel: { color: "red", fontWeight: "bold", textAlign: "center", marginBottom: "15px" },
-  sectionTitle: { marginTop: "20px", fon
+ sectionTitle: { marginTop: "20px", fontWeight: "bold" },
