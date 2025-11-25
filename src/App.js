@@ -324,9 +324,29 @@ export default function MonthlyFeedbackForm() {
 }
 
 const styles = {
-  page: { background: "#f5f5f5", padding: "30px", display: "flex", justifyContent: "center" },
-  formCard: { background: "white", padding: "30px", width: "65%", borderRadius: "10px", boxShadow: "0 0 10px rgba(0,0,0,0.1)" },
-  heading: { fontSize: "26px", fontWeight: "bold", textAlign: "center" },
-  subHeading: { textAlign: "center", marginBottom: "20px", fontSize: "18px" },
-  infoLabel: { color: "red", fontWeight: "bold", textAlign: "center", marginBottom: "15px" },
- sectionTitle: { marginTop: "20px", fontWeight: "bold" },
+  container: { maxWidth: "600px", margin: "0 auto", padding: "20px" },
+  title: { textAlign: "center", fontWeight: "bold", marginBottom: "20px" },
+  label: { fontWeight: "bold", marginBottom: "5px", display: "block" },
+  input: { width: "100%", padding: "10px", marginBottom: "15px" },
+  select: { width: "100%", padding: "10px", marginBottom: "15px" },
+  button: {
+    width: "100%",
+    padding: "12px",
+    backgroundColor: "blue",
+    color: "white",
+    fontWeight: "bold",
+    border: "none",
+    cursor: "pointer"
+  },
+  infoLabel: {
+    color: "red",
+    fontWeight: "bold",
+    textAlign: "center",
+    marginBottom: "15px"
+  },
+  sectionTitle: {
+    marginTop: "20px",
+    fontWeight: "bold",
+    marginBottom: "10px"
+  }
+};
