@@ -87,10 +87,10 @@ export default function MonthlyFeedbackForm() {
       suggestion: clean(form.suggestion),
     };
 
-    // STEP 1: Check mobile number in feedback table (custom alert)
+    // STEP 1: Check mobile number in feedback table (registered)
     try {
       const { data: registered, error: regError } = await supabase
-        .from("feedback") // ✅ feedback table में check किया
+        .from("feedback")
         .select("*")
         .eq("mobile_number", cleanedData.mobileNumber);
 
@@ -109,12 +109,12 @@ export default function MonthlyFeedbackForm() {
       return;
     }
 
-    // STEP 2: Duplicate check
+    // STEP 2: Duplicate check by mobile number
     try {
       const { data: existing, error: selectError } = await supabase
         .from("feedback")
         .select("*")
-        .eq("student_name", cleanedData.fullName)
+        .eq("mobile_number", cleanedData.mobileNumber) // अब mobile number check
         .eq("feedback_month", feedbackMonth)
         .eq("feedback_year", feedbackYear);
 
@@ -127,7 +127,7 @@ export default function MonthlyFeedbackForm() {
 
       if (existing.length > 0) {
         alert(
-          `"${cleanedData.fullName}" इस महीने पहले ही फीडबैक दे चुके हैं।`
+          `इस मोबाइल नंबर से इस महीने पहले ही फीडबैक भेजा जा चुका है।`
         );
         return;
       }
