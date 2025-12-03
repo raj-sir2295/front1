@@ -1,3 +1,5 @@
+https://feedbackformall.netlify.app/
+
 import React, { useState } from "react";
 import { createClient } from "@supabase/supabase-js";
 
@@ -37,14 +39,13 @@ export default function MonthlyFeedbackForm() {
     const today = new Date();
     const day = today.getDate();
 
- // Check date (1-30)
-if (day < 1 || day > 30) {
-  alert(
-    "कृपया ध्यान दें: फीडबैक फॉर्म केवल 1 तारीख़ से 30 तारीख़ तक भर सकते हैं।"
-  );
-  return;
-}
-
+    // Check date (1-30)
+    if (day < 1 || day > 30) {
+      alert(
+        "कृपया ध्यान दें: फीडबैक फॉर्म केवल 1 तारीख़ से 30 तारीख़ तक भर सकते हैं।"
+      );
+      return;
+    }
 
     // Required fields validation
     const requiredFields = [
@@ -90,9 +91,11 @@ if (day < 1 || day > 30) {
     };
 
     try {
-      // STEP 1: Check if mobile number is registered (in "registered_students" table)
+      // -----------------------------
+      // ✅ STEP 1: Check mobile number in registered_students
+      // -----------------------------
       const { data: registered, error: regError } = await supabase
-        .from("feedback")
+        .from("registered_students")  // ⭐ NEW TABLE CHECK
         .select("*")
         .eq("mobile_number", cleanedData.mobileNumber);
 
@@ -105,7 +108,9 @@ if (day < 1 || day > 30) {
         return;
       }
 
+      // -----------------------------
       // STEP 2: Check duplicate feedback for this month
+      // -----------------------------
       const { data: existing, error: selectError } = await supabase
         .from("feedback")
         .select("*")
@@ -114,20 +119,18 @@ if (day < 1 || day > 30) {
         .eq("feedback_year", feedbackYear);
 
       if (selectError) {
-        alert(
-          "डुप्लिकेट चेक करते समय समस्या आई, कृपया बाद में प्रयास करें।"
-        );
+        alert("डुप्लिकेट चेक करते समय समस्या आई, कृपया बाद में प्रयास करें।");
         return;
       }
 
       if (existing.length > 0) {
-        alert(
-          "इस मोबाइल नंबर से इस महीने पहले ही फीडबैक भेजा जा चुका है।"
-        );
+        alert("इस मोबाइल नंबर से इस महीने पहले ही फीडबैक भेजा जा चुका है।");
         return;
       }
 
+      // -----------------------------
       // STEP 3: Insert feedback
+      // -----------------------------
       const { error } = await supabase.from("feedback").insert([
         {
           student_name: cleanedData.fullName,
@@ -195,7 +198,10 @@ if (day < 1 || day > 30) {
             <div key={item.name}>
               <label style={styles.label}>{item.label}</label>
               <input
-                style={{ ...styles.input, ...(focused === item.name ? styles.inputFocus : {}) }}
+                style={{
+                  ...styles.input,
+                  ...(focused === item.name ? styles.inputFocus : {}),
+                }}
                 name={item.name}
                 value={form[item.name]}
                 onChange={handleChange}
@@ -207,7 +213,10 @@ if (day < 1 || day > 30) {
 
           <label style={styles.label}>Branch</label>
           <select
-            style={{ ...styles.input, ...(focused === "branch" ? styles.inputFocus : {}) }}
+            style={{
+              ...styles.input,
+              ...(focused === "branch" ? styles.inputFocus : {}),
+            }}
             name="branch"
             value={form.branch}
             onChange={handleChange}
@@ -219,7 +228,6 @@ if (day < 1 || day > 30) {
             <option value="Vaishali Nagar">Vaishali Nagar</option>
           </select>
 
-          {/* Q1 to Q6 */}
           {[
             { label: "Q1: Teacher का Behaviour कैसा है?", name: "q1", options: ["bad", "good", "great"] },
             { label: "Q2: Absence पर Course Repeat करवाते हैं?", name: "q2", options: ["yes", "no"] },
@@ -245,11 +253,13 @@ if (day < 1 || day > 30) {
             </div>
           ))}
 
-          {/* Suggestion */}
           <div style={styles.question}>
             <label style={styles.label}>Suggestion</label>
             <textarea
-              style={{ ...styles.textarea, ...(focused === "suggestion" ? styles.inputFocus : {}) }}
+              style={{
+                ...styles.textarea,
+                ...(focused === "suggestion" ? styles.inputFocus : {}),
+              }}
               name="suggestion"
               value={form.suggestion}
               onChange={handleChange}
@@ -260,7 +270,10 @@ if (day < 1 || day > 30) {
 
           <button
             type="submit"
-            style={{ ...styles.submitBtn, ...(hover ? styles.submitBtnHover : {}) }}
+            style={{
+              ...styles.submitBtn,
+              ...(hover ? styles.submitBtnHover : {}),
+            }}
             onMouseEnter={() => setHover(true)}
             onMouseLeave={() => setHover(false)}
           >
@@ -273,17 +286,83 @@ if (day < 1 || day > 30) {
 }
 
 const styles = {
-  page: { display: "flex", justifyContent: "center", alignItems: "center", background: "linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%)", padding: "20px", minHeight: "100vh" },
-  formCard: { background: "linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%)", padding: "25px 35px", width: "100%", maxWidth: "700px", borderRadius: "12px", boxShadow: "0 8px 25px rgba(0,0,0,0.3)" },
-  instituteHeading: { textAlign: "center", fontSize: "20px", fontWeight: "bold", marginBottom: "10px", color: "#333" },
-  heading: { textAlign: "center", fontSize: "22px", fontWeight: "bold", marginBottom: "10px" },
-  warning: { color: "red", fontWeight: "bold", marginBottom: "20px", textAlign: "center" },
+  page: {
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    background:
+      "linear-gradient(135deg, #74ebd5 0%, #ACB6E5 100%)",
+    padding: "20px",
+    minHeight: "100vh",
+  },
+  formCard: {
+    background:
+      "linear-gradient(145deg, #ffffff 0%, #f0f0f0 100%)",
+    padding: "25px 35px",
+    width: "100%",
+    maxWidth: "700px",
+    borderRadius: "12px",
+    boxShadow: "0 8px 25px rgba(0,0,0,0.3)",
+  },
+  instituteHeading: {
+    textAlign: "center",
+    fontSize: "20px",
+    fontWeight: "bold",
+    marginBottom: "10px",
+    color: "#333",
+  },
+  heading: {
+    textAlign: "center",
+    fontSize: "22px",
+    fontWeight: "bold",
+    marginBottom: "10px",
+  },
+  warning: {
+    color: "red",
+    fontWeight: "bold",
+    marginBottom: "20px",
+    textAlign: "center",
+  },
   label: { fontWeight: "bold", display: "block", marginBottom: "5px" },
-  input: { width: "100%", padding: "10px", marginBottom: "15px", borderRadius: "5px", border: "1px solid #ccc", outline: "none", transition: "0.3s" },
-  textarea: { width: "100%", minHeight: "80px", padding: "10px", borderRadius: "5px", border: "1px solid #ccc", marginBottom: "20px", outline: "none", transition: "0.3s" },
+  input: {
+    width: "100%",
+    padding: "10px",
+    marginBottom: "15px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+    outline: "none",
+    transition: "0.3s",
+  },
+  textarea: {
+    width: "100%",
+    minHeight: "80px",
+    padding: "10px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+    marginBottom: "20px",
+    outline: "none",
+    transition: "0.3s",
+  },
   question: { marginBottom: "20px" },
   radioLabel: { marginRight: "20px", display: "inline-block", marginTop: "5px" },
-  submitBtn: { width: "100%", padding: "12px", marginTop: "10px", background: "linear-gradient(90deg, #36d1dc 0%, #5b86e5 100%)", color: "white", border: "none", borderRadius: "8px", fontWeight: "bold", cursor: "pointer", fontSize: "16px", transition: "0.3s" },
-  submitBtnHover: { background: "linear-gradient(90deg, #5b86e5 0%, #36d1dc 100%)" },
-  inputFocus: { borderColor: "#36d1dc", boxShadow: "0 0 5px rgba(54, 209, 220, 0.5)" },
+  submitBtn: {
+    width: "100%",
+    padding: "12px",
+    marginTop: "10px",
+    background: "linear-gradient(90deg, #36d1dc 0%, #5b86e5 100%)",
+    color: "white",
+    border: "none",
+    borderRadius: "8px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    fontSize: "16px",
+    transition: "0.3s",
+  },
+  submitBtnHover: {
+    background: "linear-gradient(90deg, #5b86e5 0%, #36d1dc 100%)",
+  },
+  inputFocus: {
+    borderColor: "#36d1dc",
+    boxShadow: "0 0 5px rgba(54, 209, 220, 0.5)",
+  },
 };
