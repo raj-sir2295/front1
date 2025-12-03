@@ -3,8 +3,7 @@ import { createClient } from "@supabase/supabase-js";
 
 // Supabase setup
 const supabaseUrl = "https://vvyihexbcekdwdatknum.supabase.co";
-const supabaseKey =
-  "sb_publishable_cJPjYHIBq8Uup1rlQ6S0fQ_lEhHXnJ4";
+const supabaseKey = "sb_publishable_cJPjYHIBq8Uup1rlQ6S0fQ_lEhHXnJ4";
 const supabase = createClient(supabaseUrl, supabaseKey);
 
 export default function MonthlyFeedbackForm() {
@@ -37,9 +36,11 @@ export default function MonthlyFeedbackForm() {
 
     const today = new Date();
     const day = today.getDate();
-    if (day < 20 || day > 30) {
+
+    // ✅ Updated date validation: 1 to 30
+    if (day < 1 || day > 30) {
       alert(
-        "कृपया ध्यान दें: फीडबैक फॉर्म केवल 20 तारीख़ से 30 तारीख़ तक भर सकते हैं।"
+        "कृपया ध्यान दें: फीडबैक फॉर्म केवल 1 तारीख़ से 30 तारीख़ तक भर सकते हैं।"
       );
       return;
     }
@@ -114,7 +115,7 @@ export default function MonthlyFeedbackForm() {
       const { data: existing, error: selectError } = await supabase
         .from("feedback")
         .select("*")
-        .eq("mobile_number", cleanedData.mobileNumber) // अब mobile number check
+        .eq("mobile_number", cleanedData.mobileNumber)
         .eq("feedback_month", feedbackMonth)
         .eq("feedback_year", feedbackYear);
 
@@ -191,7 +192,7 @@ export default function MonthlyFeedbackForm() {
         </h2>
         <h2 style={styles.heading}>Monthly Feedback Form</h2>
         <p style={styles.warning}>
-          कृपया ध्यान दें: फीडबैक फॉर्म केवल 20 तारीख़ से 30 तारीख़ तक भर सकते हैं।
+          कृपया ध्यान दें: फीडबैक फॉर्म केवल 1 तारीख़ से 30 तारीख़ तक भर सकते हैं।
         </p>
         <form onSubmit={handleSubmit}>
           {[ 
