@@ -23,12 +23,9 @@ export default function MonthlyFeedbackForm() {
     suggestion: "",
   });
 
-  const [hover, setHover] = useState(false);
-  const [focused, setFocused] = useState("");
-
   const handleChange = (e) => {
     const { name, value } = e.target;
-    setForm((s) => ({ ...s, [name]: value }));
+    setForm((prev) => ({ ...prev, [name]: value }));
   };
 
   const handleSubmit = async (e) => {
@@ -37,13 +34,12 @@ export default function MonthlyFeedbackForm() {
     const today = new Date();
     const day = today.getDate();
 
-    // ✅ Date validation
+    // Date validation
     if (day < 1 || day > 30) {
       alert("फीडबैक फॉर्म केवल 1 से 30 तारीख़ तक भरा जा सकता है।");
       return;
     }
 
-    // ✅ Required fields validation (Suggestion INCLUDED)
     const requiredFields = [
       "fullName",
       "mobileNumber",
@@ -67,18 +63,11 @@ export default function MonthlyFeedbackForm() {
       }
     }
 
-    // ✅ Suggestion validation (MANDATORY + min length)
-    if (!form.suggestion.trim()) {
-      alert("कृपया Suggestion जरूर लिखें।");
-      return;
-    }
-
     if (form.suggestion.trim().length < 5) {
       alert("Suggestion कम से कम 5 अक्षरों का होना चाहिए।");
       return;
     }
 
-    // ✅ Mobile number format validation
     if (!/^[6-9]\d{9}$/.test(form.mobileNumber)) {
       alert("कृपया सही 10 अंकों का मोबाइल नंबर दर्ज करें।");
       return;
@@ -89,63 +78,47 @@ export default function MonthlyFeedbackForm() {
 
     const clean = (v) => (v ? v.toString().trim().toLowerCase() : "");
 
-    const cleanedData = {
-      fullName: clean(form.fullName),
-      mobileNumber: form.mobileNumber.trim(),
-      branch: clean(form.branch),
-      joiningCourse: clean(form.joiningCourse),
-      batchTime: clean(form.batchTime),
-      teacherName: clean(form.teacherName),
-      q1: clean(form.q1),
-      q2: clean(form.q2),
-      q3: clean(form.q3),
-      q4: clean(form.q4),
-      q5: clean(form.q5),
-      q6: clean(form.q6),
-      suggestion: clean(form.suggestion),
-    };
-
     try {
-      // ✅ STEP 1: Registered student check
+      // Registered student check
       const { data: registered } = await supabase
         .from("registered_students")
         .select("*")
-        .eq("mobile_number", cleanedData.mobileNumber);
+        .eq("mobile_number", form.mobileNumber.trim());
 
       if (!registered || registered.length === 0) {
         alert("यह मोबाइल नंबर registered नहीं है।");
         return;
       }
 
-      // ✅ STEP 2: Duplicate monthly feedback check
+      // Duplicate monthly feedback check
       const { data: existing } = await supabase
         .from("feedback")
         .select("*")
-        .eq("mobile_number", cleanedData.mobileNumber)
+        .eq("mobile_number", form.mobileNumber.trim())
         .eq("feedback_month", feedbackMonth)
         .eq("feedback_year", feedbackYear);
 
-      if (existing.length > 0) {
+      if (existing && existing.length > 0) {
         alert("इस महीने का feedback पहले ही दिया जा चुका है।");
         return;
       }
 
-      // ✅ STEP 3: Insert feedback
+      // Insert feedback
       const { error } = await supabase.from("feedback").insert([
         {
-          student_name: cleanedData.fullName,
-          mobile_number: cleanedData.mobileNumber,
-          branch: cleanedData.branch,
-          joining_course: cleanedData.joiningCourse,
-          batch_time: cleanedData.batchTime,
-          teacher_name: cleanedData.teacherName,
-          q1: cleanedData.q1,
-          q2: cleanedData.q2,
-          q3: cleanedData.q3,
-          q4: cleanedData.q4,
-          q5: cleanedData.q5,
-          q6: cleanedData.q6,
-          suggestion: cleanedData.suggestion,
+          student_name: clean(form.fullName),
+          mobile_number: form.mobileNumber.trim(),
+          branch: clean(form.branch),
+          joining_course: clean(form.joiningCourse),
+          batch_time: clean(form.batchTime),
+          teacher_name: clean(form.teacherName),
+          q1: clean(form.q1),
+          q2: clean(form.q2),
+          q3: clean(form.q3),
+          q4: clean(form.q4),
+          q5: clean(form.q5),
+          q6: clean(form.q6),
+          suggestion: clean(form.suggestion),
           feedback_month: feedbackMonth,
           feedback_year: feedbackYear,
         },
@@ -182,14 +155,27 @@ export default function MonthlyFeedbackForm() {
         <h2 style={styles.heading}>Monthly Feedback Form</h2>
 
         <form onSubmit={handleSubmit}>
-          <input name="fullName" placeholder="Full Name" value={form.fullName} onChange={handleChange} />
-          <input name="mobileNumber" placeholder="Mobile Number" value={form.mobileNumber} onChange={handleChange} />
+          <input
+            name="fullName"
+            placeholder="Full Name"
+            value={form.fullName}
+            onChange={handleChange}
+          />
+
+          <input
+            name="mobileNumber"
+            placeholder="Mobile Number"
+            value={form.mobileNumber}
+            onChange={handleChange}
+          />
+
           <textarea
             name="suggestion"
             placeholder="Suggestion (Required)"
             value={form.suggestion}
             onChange={handleChange}
           />
+
           <button type="submit">Submit</button>
         </form>
       </div>
@@ -198,7 +184,21 @@ export default function MonthlyFeedbackForm() {
 }
 
 const styles = {
-  page: { minHeight: "100vh", display: "flex", justifyContent: "center", alignItems: "center" },
-  formCard: { background: "#fff", padding: "30px", borderRadius: "10px", width: "100%", maxWidth: "600px" },
-  heading: { textAlign: "center", marginBottom: "20px" },
+  page: {
+    minHeight: "100vh",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+  },
+  formCard: {
+    background: "#fff",
+    padding: "30px",
+    borderRadius: "10px",
+    width: "100%",
+    maxWidth: "600px",
+  },
+  heading: {
+    textAlign: "center",
+    marginBottom: "20px",
+  },
 };
