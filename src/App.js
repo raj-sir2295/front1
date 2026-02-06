@@ -232,7 +232,7 @@ export default function MonthlyFeedbackForm() {
           </select>
 
           {[
-            { label: "Q1:Teacher का Behaviour आपके साथ कैसा है?", name: "q1", options: ["bad", "good", "great"] },
+            { label: "Q1:जो Teacher  आपको पढ़ा रहे हैं, उनका Behaviour आपके साथ कैसा है?", name: "q1", options: ["bad", "good", "great"] },
             { label: "Q2: Absence होने पर क्या teacher course repeat करवाते हैं?", name: "q2", options: ["yes", "no"] },
             { label: "Q3: Teacher का समझाने का तरीका कैसा है?", name: "q3", options: ["bad", "good", "great"] },
             { label: "Q4: जो Techaer आपको पढ़ा रहे हैं, क्या आप उनसे संतुष्ट हैं?", name: "q4", options: ["yes", "no"] },
