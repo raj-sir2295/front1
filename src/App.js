@@ -34,7 +34,6 @@ export default function MonthlyFeedbackForm() {
     const today = new Date();
     const day = today.getDate();
 
-    // Date validation
     if (day < 1 || day > 30) {
       alert("फीडबैक फॉर्म केवल 1 से 30 तारीख़ तक भरा जा सकता है।");
       return;
@@ -79,7 +78,6 @@ export default function MonthlyFeedbackForm() {
     const clean = (v) => (v ? v.toString().trim().toLowerCase() : "");
 
     try {
-      // Registered student check
       const { data: registered } = await supabase
         .from("registered_students")
         .select("*")
@@ -90,7 +88,6 @@ export default function MonthlyFeedbackForm() {
         return;
       }
 
-      // Duplicate monthly feedback check
       const { data: existing } = await supabase
         .from("feedback")
         .select("*")
@@ -103,7 +100,6 @@ export default function MonthlyFeedbackForm() {
         return;
       }
 
-      // Insert feedback
       const { error } = await supabase.from("feedback").insert([
         {
           student_name: clean(form.fullName),
@@ -144,7 +140,7 @@ export default function MonthlyFeedbackForm() {
           suggestion: "",
         });
       }
-    } catch (err) {
+    } catch {
       alert("Server error, बाद में प्रयास करें।");
     }
   };
@@ -154,12 +150,13 @@ export default function MonthlyFeedbackForm() {
       <div style={styles.formCard}>
         <h2 style={styles.heading}>Monthly Feedback Form</h2>
 
-        <form onSubmit={handleSubmit}>
+        <form onSubmit={handleSubmit} style={styles.form}>
           <input
             name="fullName"
             placeholder="Full Name"
             value={form.fullName}
             onChange={handleChange}
+            style={styles.input}
           />
 
           <input
@@ -167,6 +164,7 @@ export default function MonthlyFeedbackForm() {
             placeholder="Mobile Number"
             value={form.mobileNumber}
             onChange={handleChange}
+            style={styles.input}
           />
 
           <textarea
@@ -174,9 +172,12 @@ export default function MonthlyFeedbackForm() {
             placeholder="Suggestion (Required)"
             value={form.suggestion}
             onChange={handleChange}
+            style={styles.textarea}
           />
 
-          <button type="submit">Submit</button>
+          <button type="submit" style={styles.button}>
+            Submit
+          </button>
         </form>
       </div>
     </div>
@@ -189,16 +190,45 @@ const styles = {
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
+    background: "#f2f2f2",
   },
   formCard: {
     background: "#fff",
     padding: "30px",
     borderRadius: "10px",
     width: "100%",
-    maxWidth: "600px",
+    maxWidth: "500px",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
   },
   heading: {
     textAlign: "center",
     marginBottom: "20px",
+  },
+  form: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+  },
+  input: {
+    padding: "10px",
+    fontSize: "15px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+  },
+  textarea: {
+    padding: "10px",
+    fontSize: "15px",
+    borderRadius: "5px",
+    border: "1px solid #ccc",
+    minHeight: "80px",
+  },
+  button: {
+    padding: "10px",
+    fontSize: "16px",
+    borderRadius: "5px",
+    border: "none",
+    background: "#007bff",
+    color: "#fff",
+    cursor: "pointer",
   },
 };
